@@ -54118,7 +54118,7 @@
 /obj/machinery/atmospherics/components/unary/vent_scrubber/on/layer4{
 	dir = 8
 	},
-/obj/machinery/newscaster/security_unit{
+/obj/machinery/newscaster{
 	pixel_x = 28;
 	pixel_y = 1
 	},
@@ -59543,7 +59543,7 @@
 /area/security/courtroom)
 "nNt" = (
 /obj/structure/dresser,
-/obj/machinery/newscaster/security_unit{
+/obj/machinery/newscaster{
 	pixel_y = 31
 	},
 /obj/item/storage/fancy/donut_box,
@@ -77187,7 +77187,7 @@
 /obj/structure/table/wood,
 /obj/machinery/computer/med_data/laptop,
 /obj/item/reagent_containers/food/drinks/bottle/vodka/badminka,
-/obj/machinery/newscaster/security_unit{
+/obj/machinery/newscaster{
 	pixel_y = 31
 	},
 /obj/structure/reagent_dispensers/peppertank{
@@ -83218,7 +83218,7 @@
 /obj/machinery/camera{
 	c_tag = "Security - Gear Room"
 	},
-/obj/machinery/newscaster/security_unit{
+/obj/machinery/newscaster{
 	pixel_y = 31
 	},
 /turf/open/floor/plasteel/showroomfloor,
@@ -88824,7 +88824,7 @@
 	c_tag = "Security - Warden's Office";
 	dir = 8
 	},
-/obj/machinery/newscaster/security_unit{
+/obj/machinery/newscaster{
 	pixel_x = 28;
 	pixel_y = 1
 	},
