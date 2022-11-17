@@ -141,3 +141,14 @@
 #define COMSIG_MOUSEDROP_ONTO "mousedrop_onto"					//! from base of atom/MouseDrop(): (/atom/over, /mob/user)
 	#define COMPONENT_NO_MOUSEDROP 1
 #define COMSIG_MOUSEDROPPED_ONTO "mousedropped_onto"			//! from base of atom/MouseDrop_T: (/atom/from, /mob/user)
+<<<<<<< HEAD
+=======
+
+/// Check if an emag action should occur, this is inverted, so FALSE means the check succeeds.
+#define COMSIG_ATOM_SHOULD_EMAG "atom_should_emag"
+/// Do the emag action (if CHECK is FALSE)
+#define COMSIG_ATOM_ON_EMAG "atom_on_emag"
+
+///from base of atom/set_opacity(): (new_opacity)
+#define COMSIG_ATOM_SET_OPACITY "atom_set_opacity"
+>>>>>>> 97e9bf233a ([Port]Directional ligths + Opacity rework (And other stuff I've very likely forgot) (#7418))
