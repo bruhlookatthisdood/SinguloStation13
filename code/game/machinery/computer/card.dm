@@ -59,6 +59,24 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 		var/datum/job/gimmick/J = new G
 		blacklisted += J.title
 
+<<<<<<< HEAD
+=======
+	// This determines which department payment list the console will show to you.
+	if(!target_dept)
+		available_paycheck_departments |= list(ACCOUNT_COM_ID)
+	if((target_dept == DEPT_GEN) || !target_dept)
+		available_paycheck_departments |= list(ACCOUNT_CIV_ID, ACCOUNT_SRV_ID, ACCOUNT_CAR_ID)
+	if((target_dept == DEPT_ENG) || !target_dept)
+		available_paycheck_departments |= list(ACCOUNT_ENG_ID)
+	if((target_dept == DEPT_SCI) || !target_dept)
+		available_paycheck_departments |= list(ACCOUNT_SCI_ID)
+	if((target_dept == DEPT_MED) || !target_dept)
+		available_paycheck_departments |= list(ACCOUNT_MED_ID)
+	if((target_dept == DEPT_SEC) || !target_dept)
+		available_paycheck_departments |= list(ACCOUNT_SEC_ID)
+
+
+>>>>>>> 70bd30b88b (Fixes HoP card console bugs that can't change bank / crew manifest (#8121))
 /obj/machinery/computer/card/examine(mob/user)
 	. = ..()
 	if(inserted_scan_id || inserted_modify_id)
@@ -304,6 +322,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 		dat += "<table>"
 		dat += "<tr><td style='width:25%'><b>Name</b></td><td style='width:25%'><b>Job</b></td><td style='width:25%'><b>Paycheck</b></td><td style='width:25%'><b>Pay Bonus</b></td></tr>"
 
+<<<<<<< HEAD
 		for(var/A in SSeconomy.bank_accounts)
 			var/datum/bank_account/B = A
 			if(!(B.account_department in paycheck_departments))
@@ -313,6 +332,31 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			dat += "<td>[B.account_job.title]</td>"
 			dat += "<td><a href='?src=[REF(src)];choice=adjust_pay;account=[B.account_holder]'>$[B.paycheck_amount]</a></td>"
 			dat += "<td><a href='?src=[REF(src)];choice=adjust_bonus;account=[B.account_holder]'>$[B.paycheck_bonus]</a></td>"
+=======
+		if(length(paycheck_departments))
+			for(var/datum/bank_account/B in SSeconomy.bank_accounts)
+				var/datum/data/record/R = find_record("name", B.account_holder, GLOB.data_core.general)
+				dat += "<tr>"
+				dat += "<td>[B.account_holder] [B.suspended ? "(Account closed)" : ""]</td>"
+				dat += "<td>[R ? R.fields["rank"] : "(No data)"]</td>"
+				if(!(target_paycheck in paycheck_departments))
+					dat += "<td>(Auth-denied)</td>"
+				else
+					if(B.active_departments & SSeconomy.get_budget_acc_bitflag(target_paycheck))
+						dat += "<td><a href='?src=[REF(src)];choice=turn_on_off_department_bank;bank_account=[B.account_id];check_card=1'><font color=\"6bc473\">Free Vendor Access</font></a></td>"
+					else
+						dat += "<td><a href='?src=[REF(src)];choice=turn_on_off_department_bank;bank_account=[B.account_id];check_card=1;paycheck_t=[target_paycheck]'>No Free Vendor Access</a></td>"
+				if(B.suspended)
+					dat += "<td>Closed</td>"
+					dat += "<td>$0</td>"
+				else if(!(target_paycheck in paycheck_departments))
+					dat += "<td>$[B.payment_per_department[target_paycheck]] (Auth-denied)</td>"
+					dat += "<td>$[B.bonus_per_department[target_paycheck]]</td>"
+				else
+					dat += "<td><a href='?src=[REF(src)];choice=adjust_pay;paycheck_t=[target_paycheck];bank_account=[B.account_id]'>$[B.payment_per_department[target_paycheck]]</a></td>"
+					dat += "<td><a href='?src=[REF(src)];choice=adjust_bonus;paycheck_t=[target_paycheck];bank_account=[B.account_id]'>$[B.bonus_per_department[target_paycheck]]</a></td>"
+				dat += "</tr>"
+>>>>>>> 70bd30b88b (Fixes HoP card console bugs that can't change bank / crew manifest (#8121))
 	else
 		var/header = ""
 
@@ -395,6 +439,58 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 				carddesc += "<b>registered_name:</b> [target_owner]</span>"
 				jobs += "<b>Assignment:</b> [target_rank] (<a href='?src=[REF(src)];choice=demote'>Demote</a>)</span>"
 
+<<<<<<< HEAD
+=======
+			var/banking = ""
+			banking += "<b>Department active & Bank account status:</b>"
+			banking += "<table border='1' cellspacing='1' cellpadding='0'>"
+			// Department active status
+			banking += "<tr>"
+			banking += "<td><b>Active Department Manifest:</b></td>"
+			var/datum/data/record/R = find_record("name", inserted_modify_id.registered_name, GLOB.data_core.general)
+			if(R)
+				for(var/each in available_paycheck_departments)
+					if(!(SSeconomy.get_budget_acc_bitflag(each) & region_access_payment))
+						continue
+					if(R.fields["active_dept"] & SSeconomy.get_budget_acc_bitflag(each))
+						banking += "<td><a href='?src=[REF(src)];choice=turn_on_off_department_manifest;target_bitflag=[SSeconomy.get_budget_acc_bitflag(each)]'><font color=\"6bc473\">[each]</a></font></td>"
+					else
+						banking += "<td><a href='?src=[REF(src)];choice=turn_on_off_department_manifest;target_bitflag=[SSeconomy.get_budget_acc_bitflag(each)]'>[each]</a></td>"
+			else
+				banking += "<td colspan=\"8\"><b>Error: Cannot locate user entry in data core</b></td>"
+			banking += "</tr>"
+			//adjustable only when they have bank account in their card
+			var/datum/bank_account/B = inserted_modify_id?.registered_account
+			if(B)
+				// Bank vendor free status - Lets you to buy department stuff for free
+				banking += "<tr>"
+				banking += "<td><b>Free Vendor Access:</b></td>"
+				for(var/each in available_paycheck_departments)
+					if(!(SSeconomy.get_budget_acc_bitflag(each) & region_access_payment))
+						continue
+					if(B.active_departments & SSeconomy.get_budget_acc_bitflag(each))
+						banking += "<td><a href='?src=[REF(src)];choice=turn_on_off_department_bank;paycheck_t=[each]'><font color=\"6bc473\">[each]</a></font></td>"
+					else
+						banking += "<td><a href='?src=[REF(src)];choice=turn_on_off_department_bank;paycheck_t=[each]'>[each]</a></td>"
+				banking += "</tr>"
+				// Payment status
+				banking += "<tr>"
+				banking += "<td><b>Payment per department:</b></td>"
+				for(var/each in available_paycheck_departments)
+					if(!(SSeconomy.get_budget_acc_bitflag(each) & region_access_payment))
+						continue
+					if(SSeconomy.is_nonstation_account(each))
+						banking += "<td>$[B.payment_per_department[each]]</td>"
+						continue
+					banking += "<td><a href='?src=[REF(src)];choice=adjust_pay;paycheck_t=[each]'>$[B.payment_per_department[each]]</a></td>"
+				banking += "</tr>"
+			else
+				banking += "<td><b>Banking information:</b></td>"
+				banking += "<td colspan=\"8\"><b>Error: No linked bank account detected</b></td>"
+			banking += "</table>"
+			banking += "<br>"
+
+>>>>>>> 70bd30b88b (Fixes HoP card console bugs that can't change bank / crew manifest (#8121))
 			var/accesses = ""
 			if(istype(src, /obj/machinery/computer/card/centcom))
 				accesses += "<h5>Central Command:</h5>"
@@ -554,6 +650,36 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 						return
 
 					inserted_modify_id.access = ( istype(src, /obj/machinery/computer/card/centcom) ? get_centcom_access(t1) : jobdatum.get_access() )
+<<<<<<< HEAD
+=======
+
+					// Step 1: reseting theirs first
+					if(B) // 1-A: reseting bank payment
+						for(var/each in inserted_modify_id.registered_account.payment_per_department)
+							if(SSeconomy.is_nonstation_account(each))
+								continue
+							B.active_departments &= ~SSeconomy.get_budget_acc_bitflag(each)
+							B.payment_per_department[each] = 0
+							B.bonus_per_department[each] = 0
+						B.active_departments &= ~SSeconomy.get_budget_acc_bitflag(ACCOUNT_COM_ID) // micromanagement
+					if(R) // 1-B: reseting crew manifest
+						for(var/each in available_paycheck_departments)
+							if(SSeconomy.is_nonstation_account(each))
+								continue
+							R.fields["active_dept"] &= ~SSeconomy.get_budget_acc_bitflag(each)
+						R.fields["active_dept"] &= ~DEPT_BITFLAG_COM  // micromanagement2
+						// Note: `fields["active_dept"] = NONE` is a bad idea because you should keep VIP_BITFLAG.
+					// Step 2: giving the job info into their bank and record
+					if(B) // 2-A: setting bank payment
+						for(var/each in jobdatum.payment_per_department)
+							if(SSeconomy.is_nonstation_account(each))
+								continue
+							B.payment_per_department[each] = jobdatum.payment_per_department[each]
+						B.active_departments |= jobdatum.bank_account_department
+					if(R) // 2-B: setting crew manifest
+						R.fields["active_dept"] |= jobdatum.departments
+
+>>>>>>> 70bd30b88b (Fixes HoP card console bugs that can't change bank / crew manifest (#8121))
 					log_id("[key_name(usr)] assigned [jobdatum] job to [inserted_modify_id], overriding all previous access using [inserted_scan_id] at [AREACOORD(usr)].")
 
 				if (inserted_modify_id)
@@ -662,6 +788,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			if(isnull(account))
 				updateUsrDialog()
 				return
+<<<<<<< HEAD
 			switch(account.account_department) //Checking if the user has access to change pay.
 				if(ACCOUNT_SRV,ACCOUNT_CIV,ACCOUNT_CAR)
 					if(!(ACCESS_HOP in inserted_scan_id.access))
@@ -684,6 +811,27 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 						updateUsrDialog()
 						return
 			var/new_pay = FLOOR(input(usr, "Input the new paycheck amount.", "Set new paycheck amount.", account.paycheck_amount) as num|null, 1)
+=======
+			if(SSeconomy.is_nonstation_account(href_paytype))
+				updateUsrDialog()
+				return
+			target_paycheck = href_paytype
+
+		if ("adjust_pay")
+			//Adjust the paycheck of a crew member. Can't be less than zero.
+			if(!(authenticated || check_auth_payment()))
+				updateUsrDialog()
+				return
+			var/paycheck_t = href_list["paycheck_t"]
+			var/datum/bank_account/B = SSeconomy.get_bank_account_by_id(href_list["bank_account"]) || inserted_modify_id?.registered_account
+			if(isnull(B))
+				updateUsrDialog()
+				return
+			if(SSeconomy.is_nonstation_account(paycheck_t))
+				message_admins("[ADMIN_LOOKUPFLW(usr)] tried to adjust [B.account_id] payment. It must be they're hacking the game.")
+				CRASH("[key_name(usr)] tried to adjust [B.account_id] payment. It must be they're hacking the game.")
+			var/new_pay = FLOOR(input(usr, "Input the new paycheck amount.", "Set new paycheck amount.", B.payment_per_department[target_paycheck]) as num|null, 1)
+>>>>>>> 70bd30b88b (Fixes HoP card console bugs that can't change bank / crew manifest (#8121))
 			if(isnull(new_pay))
 				updateUsrDialog()
 				return
@@ -698,6 +846,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			if(!inserted_scan_id)
 				updateUsrDialog()
 				return
+<<<<<<< HEAD
 			var/account_name = href_list["account"]
 			var/datum/bank_account/account = null
 			for(var/datum/bank_account/B in SSeconomy.bank_accounts)
@@ -705,6 +854,11 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 					account = B
 					break
 			if(isnull(account))
+=======
+			var/paycheck_t = href_list["paycheck_t"]
+			var/datum/bank_account/B = SSeconomy.get_bank_account_by_id(href_list["bank_account"]) || inserted_modify_id?.registered_account
+			if(isnull(B))
+>>>>>>> 70bd30b88b (Fixes HoP card console bugs that can't change bank / crew manifest (#8121))
 				updateUsrDialog()
 				return
 			switch(account.account_department) //Checking if the user has access to change pay.
@@ -732,7 +886,42 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			if(isnull(new_bonus))
 				updateUsrDialog()
 				return
+<<<<<<< HEAD
 			account.paycheck_bonus = new_bonus
+=======
+			B.bonus_per_department[paycheck_t] = new_bonus
+
+		if ("turn_on_off_department_bank")
+			var/check_card = href_list["check_card"]
+			if(!inserted_scan_id && check_card)
+				updateUsrDialog()
+				return
+			var/paycheck_t = href_list["paycheck_t"]
+			var/datum/bank_account/B = SSeconomy.get_bank_account_by_id(href_list["bank_account"]) || inserted_modify_id?.registered_account
+			if(!B)
+				updateUsrDialog()
+				return
+			if(SSeconomy.is_nonstation_account(paycheck_t) && !(paycheck_t == ACCOUNT_COM_ID)) // command is fine to turn on/off
+				message_admins("[ADMIN_LOOKUPFLW(usr)] tried to adjust [inserted_modify_id.registered_name]'s vendor free status of [B.account_holder]. It must be they're hacking the game.")
+				CRASH("[key_name(usr)] tried to adjust [inserted_modify_id.registered_name]'s vendor free status of [B.account_holder]. It must be they're hacking the game.")
+
+			if(B.active_departments & SSeconomy.get_budget_acc_bitflag(paycheck_t))
+				B.active_departments &= ~SSeconomy.get_budget_acc_bitflag(paycheck_t) // turn off
+			else
+				B.active_departments |= SSeconomy.get_budget_acc_bitflag(paycheck_t) // turn on
+
+		if ("turn_on_off_department_manifest")
+			var/target_bitflag = text2num(href_list["target_bitflag"])
+			var/datum/data/record/R = find_record("name", inserted_modify_id.registered_name, GLOB.data_core.general)
+			if(!R)
+				updateUsrDialog()
+				return
+
+			if(R.fields["active_dept"] & target_bitflag)
+				R.fields["active_dept"] &= ~target_bitflag // turn off
+			else
+				R.fields["active_dept"] |= target_bitflag // turn on
+>>>>>>> 70bd30b88b (Fixes HoP card console bugs that can't change bank / crew manifest (#8121))
 
 		if ("print")
 			if (!( printing ))
