@@ -27,6 +27,7 @@
 	. = ..()
 
 	coil = new /obj/machinery/teslagen_coil(src)
+	coil.forceMove(loc)
 	coil.gas_generator = src
 
 	set_active(active)				//Force overlay update.
