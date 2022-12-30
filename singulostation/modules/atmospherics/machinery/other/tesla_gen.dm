@@ -21,12 +21,12 @@
 	var/broken = FALSE
 	var/broken_message = "ERROR"
 
-	var/obj/teslagen_coil/coil = null
+	var/obj/machinery/teslagen_coil/coil = null
 
 /obj/machinery/atmospherics/components/unary/teslagen/Initialize(mapload)
 	. = ..()
 
-	coil = new /obj/teslagen_coil(src)
+	coil = new /obj/machinery/teslagen_coil(src)
 	coil.gas_generator = src
 
 	set_active(active)				//Force overlay update.
