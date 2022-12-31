@@ -26,8 +26,7 @@
 /obj/machinery/atmospherics/components/unary/teslagen/Initialize(mapload)
 	. = ..()
 
-	coil = new /obj/machinery/teslagen_coil(src)
-	coil.forceMove(loc)
+	coil = new /obj/machinery/teslagen_coil(loc)
 	coil.gas_generator = src
 
 	set_active(active)				//Force overlay update.
@@ -118,6 +117,9 @@
 	..()
 
 /obj/machinery/teslagen_coil
+	layer = CLICKCATCHER_PLANE
+	invisibility = INVISIBILITY_MAXIMUM
+
 	var/obj/machinery/atmospherics/components/unary/teslagen/gas_generator
 
 /obj/machinery/teslagen_coil/tesla_act(power)
