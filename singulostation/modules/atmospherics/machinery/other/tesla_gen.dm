@@ -50,16 +50,6 @@
 		piping_layer = board.pipe_layer
 	return ..(dir, piping_layer)
 
-/obj/machinery/atmospherics/components/unary/teslagen/update_icon()
-	cut_overlays()
-
-	if(panel_open)
-		icon_state = "grounding_rod_open1"
-	else
-		icon_state = "grounding_rod1"
-
-	add_overlay(getpipeimage(icon, "pipe", dir, , piping_layer))
-
 /obj/machinery/atmospherics/components/unary/teslagen/default_change_direction_wrench(mob/user, obj/item/I)
 	if(!..())
 		return FALSE
@@ -140,6 +130,13 @@
 		var/mutable_appearance/on_overlay = mutable_appearance(icon, "on")
 		on_overlay.color = overlay_color
 		add_overlay(on_overlay)
+
+	if(panel_open)
+		icon_state = "grounding_rod_open1"
+	else
+		icon_state = "grounding_rod1"
+
+	add_overlay(getpipeimage(icon, "pipe", dir, , piping_layer))
 
 /obj/machinery/atmospherics/components/unary/teslagen/tesla_act(power)
 	if(!broken)
