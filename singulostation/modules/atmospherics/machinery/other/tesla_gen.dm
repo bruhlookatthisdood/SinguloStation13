@@ -6,6 +6,8 @@
 	density = TRUE
 	resistance_flags = ACID_PROOF|FIRE_PROOF
 	interacts_with_air = TRUE
+	circuit = /obj/item/circuitboard/machine/thermomachine/teslagen
+
 	var/static/list/possible_gases = list(
 		"o2=22;TEMP=293.15"		= 2,
 		"n2=82;TEMP=293.15"		= 3,
@@ -40,6 +42,26 @@
 	. = ..()
 	if(broken)
 		. += {"Its debug output is printing "[broken_message]"."}
+
+/obj/machinery/atmospherics/components/unary/teslagen/default_change_direction_wrench(mob/user, obj/item/I)
+	if(!..())
+		return FALSE
+	SetInitDirections()
+	var/obj/machinery/atmospherics/node = nodes[1]
+	if(node)
+		node.disconnect(src)
+		nodes[1] = null
+	//Sometimes this gets called more than once per atmos tick; i.e. before the incoming build_network call by SSAIR_REBUILD_PIPENETS, so we check this here.
+	if(parents[1])
+		nullifyPipenet(parents[1])
+
+	atmosinit()
+	node = nodes[1]
+	if(node)
+		node.atmosinit()
+		node.addMember(src)
+	SSair.add_to_rebuild_queue(src)
+	return TRUE
 
 /obj/machinery/atmospherics/components/unary/teslagen/proc/check_operation()
 	if(!active)
