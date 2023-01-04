@@ -28,6 +28,7 @@
 /obj/machinery/atmospherics/components/unary/teslagen/Initialize(mapload)
 	. = ..()
 
+	initialize_directions = dir
 	coil = new /obj/machinery/teslagen_coil(loc)
 	coil.gas_generator = src
 
