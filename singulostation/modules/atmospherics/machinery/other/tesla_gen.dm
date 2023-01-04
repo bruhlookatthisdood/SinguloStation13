@@ -138,7 +138,7 @@
 
 	add_overlay(getpipeimage(icon, "pipe", dir, , piping_layer))
 
-/obj/machinery/atmospherics/components/unary/thermomachine/update_icon_nopipes()
+/obj/machinery/atmospherics/components/unary/teslagen/update_icon_nopipes()
 	cut_overlays()
 	if(showpipe)
 		add_overlay(getpipeimage(icon, "scrub_cap", initialize_directions))
