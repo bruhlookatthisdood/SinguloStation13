@@ -2,7 +2,7 @@
 	name = "experimental gas generator"
 	desc = "Generates gasses from the electrical shock of a tesla."
 	icon = 'icons/obj/tesla_engine/tesla_coil.dmi'
-	icon_state = "grounding_rod0"
+	icon_state = "grounding_rod1"
 	density = TRUE
 	resistance_flags = ACID_PROOF|FIRE_PROOF
 	interacts_with_air = TRUE
@@ -62,6 +62,16 @@
 		node.addMember(src)
 	SSair.add_to_rebuild_queue(src)
 	return TRUE
+
+/obj/machinery/atmospherics/components/unary/teslagen/attackby(obj/item/I, mob/user, params)
+	if(!on)
+		if(default_deconstruction_screwdriver(user, "grounding_rod_open1", "grounding_rod1", I))
+			return
+	if(default_change_direction_wrench(user, I))
+		return
+	if(default_deconstruction_crowbar(I))
+		return
+	return ..()
 
 /obj/machinery/atmospherics/components/unary/teslagen/proc/check_operation()
 	if(!active)
