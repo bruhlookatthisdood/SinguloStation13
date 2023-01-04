@@ -9,7 +9,6 @@
 		/obj/item/stock_parts/micro_laser = 3,
 		/obj/item/stock_parts/matter_bin = 1)
 
-
 /obj/item/circuitboard/machine/thermomachine/teslagen
 	name = "tesla gas generator (Machine Board)"
 	icon_state = "engineering"

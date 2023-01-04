@@ -107,6 +107,6 @@
 	name = "Machine Design (Tesla Gas Generator)"
 	desc = "An experimental machine that converts the awesome power of the tesla and (placeholder gas) into other gases."
 	id = "teslagen"
-	build_path = /obj/item/circuitboard/machine/teslagen
+	build_path = /obj/item/circuitboard/machine/thermomachine/teslagen
 	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING
 	category = list("Medical Machinery")
