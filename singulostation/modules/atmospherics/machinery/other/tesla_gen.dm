@@ -44,6 +44,22 @@
 	if(broken)
 		. += {"Its debug output is printing "[broken_message]"."}
 
+/obj/machinery/atmospherics/components/unary/teslagen/on_construction()
+	var/obj/item/circuitboard/machine/thermomachine/board = circuit
+	if(board)
+		piping_layer = board.pipe_layer
+	return ..(dir, piping_layer)
+
+/obj/machinery/atmospherics/components/unary/teslagen/update_icon()
+	cut_overlays()
+
+	if(panel_open)
+		icon_state = "grounding_rod_open1"
+	else
+		icon_state = "grounding_rod1"
+
+	add_overlay(getpipeimage(icon, "pipe", dir, , piping_layer))
+
 /obj/machinery/atmospherics/components/unary/teslagen/default_change_direction_wrench(mob/user, obj/item/I)
 	if(!..())
 		return FALSE
