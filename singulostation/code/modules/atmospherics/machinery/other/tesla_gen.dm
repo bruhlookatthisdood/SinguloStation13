@@ -96,11 +96,11 @@
 
 		var/datum/gas_mixture/air_contents = airs[1]
 		if(!air_contents)
-			flick("hit", src)// TODO: add failed hit animation
+			flick("fail", src)
 			return
 
 		if(air_contents.get_moles(GAS_PLASMA) < 5)
-			flick("hit", src)// TODO: add failed hit animation
+			flick("fail", src)
 			return
 
 		air_contents.adjust_moles(GAS_PLASMA, -5)
