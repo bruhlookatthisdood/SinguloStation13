@@ -21,9 +21,6 @@
 //	var/max_ext_mol = INFINITY
 //	var/max_ext_kpa = 6500
 	var/overlay_color = "#FFFFFF"
-	var/active = TRUE
-	var/broken = FALSE
-	var/broken_message = "ERROR"
 
 	var/obj/machinery/teslagen_coil/coil = null
 
@@ -34,17 +31,12 @@
 	coil = new /obj/machinery/teslagen_coil(loc)
 	coil.gas_generator = src
 
-	set_active(active)				//Force overlay update.
+	update_icon()
 
 /obj/machinery/atmospherics/components/unary/teslagen/Destroy()
 	qdel(coil)
 
 	return ..()
-
-/obj/machinery/atmospherics/components/unary/teslagen/examine(mob/user)
-	. = ..()
-	if(broken)
-		. += {"Its debug output is printing "[broken_message]"."}
 
 /obj/machinery/atmospherics/components/unary/teslagen/on_construction()
 	var/obj/item/circuitboard/machine/thermomachine/board = circuit
@@ -82,56 +74,8 @@
 		return
 	return ..()
 
-/obj/machinery/atmospherics/components/unary/teslagen/proc/check_operation()
-	if(!active)
-		return FALSE
-	var/turf/T = get_turf(src)
-	if(!isopenturf(T))
-		broken_message = "<span class='boldnotice'>VENT BLOCKED</span>"
-		set_broken(TRUE)
-		return FALSE
-	var/turf/open/OT = T
-	if(OT.planetary_atmos)
-		broken_message = "<span class='boldwarning'>DEVICE NOT ENCLOSED IN A PRESSURIZED ENVIRONMENT</span>"
-		set_broken(TRUE)
-		return FALSE
-	if(isspaceturf(T))
-		broken_message = "<span class='boldnotice'>AIR VENTING TO SPACE</span>"
-		set_broken(TRUE)
-		return FALSE
-// TODO: readd something to do this sort of check
-//	var/datum/gas_mixture/G = OT.return_air()
-//	if(G.return_pressure() > (max_ext_kpa - ((spawn_mol*spawn_temp*R_IDEAL_GAS_EQUATION)/(CELL_VOLUME))))
-//		broken_message = "<span class='boldwarning'>EXTERNAL PRESSURE OVER THRESHOLD</span>"
-//		set_broken(TRUE)
-//		return FALSE
-//	if(G.total_moles() > max_ext_mol)
-//		broken_message = "<span class='boldwarning'>EXTERNAL AIR CONCENTRATION OVER THRESHOLD</span>"
-//		set_broken(TRUE)
-//		return FALSE
-	if(broken)
-		set_broken(FALSE)
-		broken_message = ""
-	return TRUE
-
-/obj/machinery/atmospherics/components/unary/teslagen/proc/set_active(setting)
-	if(active != setting)
-		active = setting
-		update_icon()
-
-/obj/machinery/atmospherics/components/unary/teslagen/proc/set_broken(setting)
-	if(broken != setting)
-		broken = setting
-		update_icon()
-
 /obj/machinery/atmospherics/components/unary/teslagen/update_icon()
 	cut_overlays()
-	if(broken)
-		add_overlay("broken")
-	else if(active)
-		var/mutable_appearance/on_overlay = mutable_appearance(icon, "on")
-		on_overlay.color = overlay_color
-		add_overlay(on_overlay)
 
 	if(panel_open)
 		icon_state = "open"
@@ -146,7 +90,7 @@
 		add_overlay(getpipeimage(icon, "scrub_cap", initialize_directions))
 
 /obj/machinery/atmospherics/components/unary/teslagen/tesla_act(power, tesla_flags, shocked_targets)
-	if(!broken && !panel_open)
+	if(!panel_open)
 		obj_flags |= BEING_SHOCKED
 
 		var/datum/gas_mixture/air_contents = airs[1]
@@ -158,7 +102,7 @@
 			flick("hit", src)// TODO: add failed hit animation
 			return
 
-		air_contents.adjust_moles(GAS_PLASMA, 5)
+		air_contents.adjust_moles(GAS_PLASMA, -5)
 		flick("hit", src)
 		playsound(src.loc, 'sound/magic/lightningshock.ogg', 100, 1, extrarange = 5)
 		release_gas(power)
@@ -175,16 +119,16 @@
 	O.air_update_turf(TRUE)
 	return TRUE
 
-/obj/machinery/atmospherics/components/unary/teslagen/attack_ai(mob/living/silicon/user)
-	if(broken)
-		to_chat(user, "[src] seems to be broken. Its debug interface outputs: [broken_message]")
-	..()
-
 /obj/machinery/teslagen_coil
 	layer = CLICKCATCHER_PLANE
 	invisibility = INVISIBILITY_MAXIMUM
 
 	var/obj/machinery/atmospherics/components/unary/teslagen/gas_generator
+
+/obj/machinery/teslagen_coil/Destroy()
+	gas_generator = null
+
+	return ..()
 
 /obj/machinery/teslagen_coil/tesla_act(power)
 	if(!gas_generator)
