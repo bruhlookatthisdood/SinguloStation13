@@ -9,9 +9,11 @@
 	circuit = /obj/item/circuitboard/machine/thermomachine/teslagen
 
 	var/static/list/possible_gases = list(
-		"o2=22;TEMP=293.15"		= 2,
-		"n2=82;TEMP=293.15"		= 3,
-		"plasma=22;TEMP=293.15"	= 1
+		GAS_PLASMA = list(
+			"o2=22;TEMP=293.15"		= 2,
+			"n2=82;TEMP=293.15"		= 3,
+			"plasma=22;TEMP=293.15"	= 1
+		)
 	)
 //	var/spawn_temp = T20C
 	/// Moles of gas to spawn per second
@@ -143,21 +145,32 @@
 	if(showpipe)
 		add_overlay(getpipeimage(icon, "scrub_cap", initialize_directions))
 
-/obj/machinery/atmospherics/components/unary/teslagen/tesla_act(power)
-	if(!broken)
+/obj/machinery/atmospherics/components/unary/teslagen/tesla_act(power, tesla_flags, shocked_targets)
+	if(!broken && !panel_open)
 		obj_flags |= BEING_SHOCKED
+
+		var/datum/gas_mixture/air_contents = airs[1]
+		if(!air_contents)
+			flick("hit", src)// TODO: add failed hit animation
+			return
+
+		if(air_contents.get_moles(GAS_PLASMA) < 5)
+			flick("hit", src)// TODO: add failed hit animation
+			return
+
+		air_contents.adjust_moles(GAS_PLASMA, 5)
 		flick("hit", src)
 		playsound(src.loc, 'sound/magic/lightningshock.ogg', 100, 1, extrarange = 5)
 		release_gas(power)
 	else
-		..(power)
+		..()
 
 /obj/machinery/atmospherics/components/unary/teslagen/proc/release_gas(power)
 	var/turf/open/O = get_turf(src)
 	if(!isopenturf(O))
 		return FALSE
 	var/datum/gas_mixture/merger = new
-	merger.parse_gas_string(pickweight(possible_gases));
+	merger.parse_gas_string(pickweight(possible_gases[GAS_PLASMA]));
 	O.assume_air(merger)
 	O.air_update_turf(TRUE)
 	return TRUE
