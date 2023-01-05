@@ -92,6 +92,7 @@
 /obj/machinery/atmospherics/components/unary/teslagen/tesla_act(power, tesla_flags, shocked_targets)
 	if(!panel_open)
 		obj_flags |= BEING_SHOCKED
+		playsound(src.loc, 'sound/magic/lightningshock.ogg', 100, 1, extrarange = 5)
 
 		var/datum/gas_mixture/air_contents = airs[1]
 		if(!air_contents)
@@ -104,7 +105,6 @@
 
 		air_contents.adjust_moles(GAS_PLASMA, -5)
 		flick("hit", src)
-		playsound(src.loc, 'sound/magic/lightningshock.ogg', 100, 1, extrarange = 5)
 		release_gas(power)
 	else
 		..()
